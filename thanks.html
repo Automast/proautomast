@@ -23,7 +23,7 @@
         .sharing-text{color:#666;font-size:16px;margin-bottom:20px}
         .progress-container{margin:25px 0;position:relative}
         .progress-bar{height:8px;border-radius:4px;background-color:#e0e0e0;position:relative}
-        .progress-fill{position:absolute;top:0;left:0;height:100%;width:50%;border-radius:4px;background:linear-gradient(to right,#00b25a,#00b25a)}
+        .progress-fill{position:absolute;top:0;left:0;height:100%;width:0;border-radius:4px;background:linear-gradient(to right,#00b25a,#00b25a)}
         .amount-raised{text-align:left;font-weight:700;margin-top:10px}
         .continue-btn{display:block;text-align:center;padding:10px 20px;background-color:#333;color:#fff;text-decoration:none;font-size:16px;font-weight:500;border-radius:5px;margin:20px auto;max-width:200px}
         @media(max-width:480px){
@@ -43,7 +43,7 @@
             <div class="profile-image">
                 <img src="https://helpineed.space/page/jhon.png" alt="Profile Image">
             </div>
-            <h1>You're joining 15761 donors making an impact</h1>
+            <h1>You're joining 0 donors making an impact</h1>
             <div class="donation-info">
                 <i class="fa-solid fa-circle-check donation-icon"></i>
                 <span>You donated $0</span>
@@ -65,12 +65,50 @@
         function getCookie(name){
             return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name+'='))?.split('=')[1]||null;
         }
+        function getExtraAmount(percentage){
+            if(percentage<10){
+                return percentage+(percentage*100);
+            }else{
+                const firstDigit=parseInt(percentage.toString()[0],10);
+                return percentage+7+(firstDigit*100);
+            }
+        }
         document.addEventListener('DOMContentLoaded',()=>{
             const amount=getCookie('paymentAmount')||'0';
             const donationSpan=document.querySelector('.donation-info span');
             if(donationSpan)donationSpan.textContent='You donated $'+amount;
-            const amountRaised=document.querySelector('.amount-raised');
-            if(amountRaised)amountRaised.textContent='$'+amount+' raised';
+
+            const totalGoal=100000;
+            const totalDonorsAt100=2930;
+            let donationPercentage=47;
+
+            try{
+                const cookieValue=getCookie('myDonationCookie');
+                if(cookieValue){
+                    const cookieObj=JSON.parse(decodeURIComponent(cookieValue));
+                    if(cookieObj.start){
+                        const diffMs=Date.now()-parseInt(cookieObj.start,10);
+                        const increments=Math.floor(Math.floor(diffMs/3600000)/6);
+                        donationPercentage+=increments;
+                    }
+                    if(typeof cookieObj.incrementsUsed==='number'){
+                        donationPercentage+=cookieObj.incrementsUsed;
+                    }
+                }
+            }catch(e){}
+
+            const displayDonationPercentage=Math.min(donationPercentage,100);
+            const currentRaised=Math.round((totalGoal*displayDonationPercentage)/100);
+            const currentDonors=Math.round((totalDonorsAt100*displayDonationPercentage)/100);
+            const extraAmount=getExtraAmount(displayDonationPercentage);
+            const finalDisplayedRaised=currentRaised+extraAmount;
+
+            document.querySelector('.amount-raised').textContent=
+                '$'+finalDisplayedRaised.toLocaleString()+' raised';
+            document.querySelector('.progress-fill').style.width=
+                displayDonationPercentage+'%';
+            document.querySelector('.main-card h1').textContent=
+                "You're joining "+currentDonors.toLocaleString()+" donors making an impact";
         });
     </script>
 </body>
