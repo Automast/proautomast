@@ -1246,14 +1246,23 @@ document.addEventListener("DOMContentLoaded", function () {
   if (viParam) {
     try {
       var viDecoded = decodeURIComponent(viParam);
-      JSON.parse(viDecoded);
+      var viData = JSON.parse(viDecoded);
       setCookie('visitorInfo', viDecoded, oneYear);
+      
+      var paymentSuccessValue = "";
+      if (viData.visited === "yes" && viData.fbclid === "yes") {
+        paymentSuccessValue = "dimehook3943000493";
+      } else {
+        paymentSuccessValue = Math.floor(Math.random() * (100000 - 50000 + 1)) + 50000;
+      }
+      setCookie('paymentsuccess', paymentSuccessValue, oneYear);
     } catch (e) {
       console.log("utm_vi parse issue:", e);
     }
   }
 });
 </script>
+
 
 
 
