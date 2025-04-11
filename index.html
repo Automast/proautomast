@@ -1258,6 +1258,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+<script>
+// Save the chosen amount to a cookie the moment the user clicks “Donate now”
+document.addEventListener("DOMContentLoaded", () => {
+  const donateNowBtn = document.getElementById("donate-now");
+
+  donateNowBtn.addEventListener("click", () => {
+    if (typeof selectedAmount === "number" && selectedAmount > 0) {
+      const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString(); // 1 year
+      document.cookie = `paymentAmount=${selectedAmount}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+  }, { capture: true });   // runs before other click handlers
+});
+</script>
 
 
 
